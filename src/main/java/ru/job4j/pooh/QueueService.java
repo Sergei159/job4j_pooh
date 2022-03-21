@@ -10,23 +10,34 @@ public class QueueService implements Service {
 
     @Override
     public Resp process(Req req) {
-        String text = req.getParam();
-        String sourceName = req.getSourceName();
-        String status = "200";
 
         if ("POST".equals(req.httpRequestType())) {
-            queue.putIfAbsent(sourceName, new ConcurrentLinkedQueue<>());
-            queue.get(sourceName).add(text);
-            if ("".equals(text)) {
-                status = "204";
-            }
-            return new Resp(text, status);
-
+            return post(req);
         } else if (("GET".equals(req.httpRequestType()))) {
-            String textResult = queue.get(sourceName).poll();
-            return new Resp(textResult, status);
+            return get(req);
         } else {
             throw new IllegalArgumentException("Wrong query");
         }
+    }
+
+    private Resp post(Req req) {
+        String text = req.getParam();
+        String sourceName = req.getSourceName();
+        String status = "200";
+        queue.putIfAbsent(sourceName, new ConcurrentLinkedQueue<>());
+        queue.get(sourceName).add(text);
+        if ("".equals(text)) {
+            status = "204";
+        }
+        return new Resp(text, status);
+    }
+
+    private Resp get(Req req) {
+        String text = req.getParam();
+        String sourceName = req.getSourceName();
+        String status = "200";
+        String textResult = queue.get(sourceName).poll();
+        return new Resp(textResult, status);
+
     }
 }
