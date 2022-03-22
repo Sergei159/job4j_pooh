@@ -27,7 +27,7 @@ public class QueueService implements Service {
         } else if (("GET".equals(req.httpRequestType()))) {
             return get(req);
         } else {
-            throw new IllegalArgumentException("Wrong query");
+            return new Resp("", "501");
         }
     }
 
@@ -44,11 +44,15 @@ public class QueueService implements Service {
     }
 
     private Resp get(Req req) {
-        String text = req.getParam();
         String sourceName = req.getSourceName();
         String status = "200";
-        String textResult = queue.get(sourceName).poll();
-        return new Resp(textResult, status);
+        if (queue.get(sourceName) != null) {
+            String textResult = queue.get(sourceName).poll();
+            if (textResult != null) {
+                return new Resp(textResult, status);
+            }
+        }
+        return new Resp("", "204");
 
     }
 }

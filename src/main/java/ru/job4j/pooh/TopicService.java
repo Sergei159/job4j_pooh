@@ -33,7 +33,7 @@ public class TopicService implements Service {
         } else if (("GET".equals(req.httpRequestType()))) {
            return get(req);
         } else {
-            throw new IllegalArgumentException("Wrong query");
+            return new Resp("", "501");
         }
     }
 
